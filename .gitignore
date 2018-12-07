@@ -1,0 +1,10 @@
+# Scala
+*.class
+*.log
+target
+.ensime_cache
+project
+
+# IntelliJ project files
+.idea
+*.iml
