@@ -1,11 +1,11 @@
-//package stackoverflow.classification
+//package stackoverflow.stackoverflow.classification
 //
-//import org.apache.spark.ml.classification._
+//import org.apache.spark.ml.stackoverflow.classification._
 //import org.apache.spark.ml.linalg.{Vector, Vectors}
 //import org.apache.spark.ml.param.{Param, ParamMap}
 //import org.apache.spark.sql.Dataset
 //import org.apache.spark.sql.functions._
-//import stackoverflow.classification
+//import stackoverflow.stackoverflow.classification
 //
 ///**
 //  * Implements a multilabel classificator
@@ -38,7 +38,7 @@
 //class BinaryMultiLabelClassifier (
 //    override val uid: String)
 //  extends ProbabilisticClassifier[Vector, BinaryMultiLabelClassifier, BinaryMultiLabelClassifierModel]
-//    with classification.ClassifierTypeTrait {
+//    with stackoverflow.classification.ClassifierTypeTrait {
 //
 //  def getLabels(dataset: Dataset[_]): Array[String] = {
 //    import dataset.sparkSession.implicits._
@@ -79,7 +79,7 @@
 //    override val uid: String,
 //    val models: Array[_ <: ClassificationModel[Vector, _]])
 //  extends ClassificationModel[Vector, BinaryMultiLabelClassifierModel]
-//    with classification.ClassifierTypeTrait {
+//    with stackoverflow.classification.ClassifierTypeTrait {
 //
 //  val numClasses = 0
 //

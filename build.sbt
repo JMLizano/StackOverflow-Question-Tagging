@@ -34,3 +34,6 @@ libraryDependencies ++= Seq(
 )
 
 testOptions in Test += Tests.Argument("-oFD")
+parallelExecution in Test := false
+fork in Test := true
+javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-XX:MaxPermSize=2048M", "-XX:+CMSClassUnloadingEnabled")

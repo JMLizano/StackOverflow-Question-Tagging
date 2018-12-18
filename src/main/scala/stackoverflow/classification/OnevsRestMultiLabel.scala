@@ -101,7 +101,7 @@ trait OneVsRestMultiParams extends Params
     with ClassifierTypeTrait with HasLabelCol with HasFeaturesCol with HasPredictionCol{
 
   /**
-    * param for the base binary classifier that we reduce multiclass classification into.
+    * param for the base binary classifier that we reduce multiclass stackoverflow.classification into.
     * The base classifier input and output columns are ignored in favor of
     * the ones specified in [[OneVsRestMulti]].
     * @group param
@@ -169,7 +169,7 @@ trait OneVsRestMultiParams extends Params
   *
   * @param labelMetadata Metadata of label column if it exists, or Nominal attribute
   *                      representing the number of classes in training dataset otherwise.
-  * @param models The binary classification models for the reduction.
+  * @param models The binary stackoverflow.classification models for the reduction.
   *               The i-th model is produced by testing the i-th class (taking label 1) vs the rest
   *               (taking label 0).
   */
@@ -211,28 +211,24 @@ final class OneVsRestMultiModel(
     // update the accumulator column with the result of prediction of models
     val aggregatedDataset = models.zipWithIndex.foldLeft[DataFrame](newDataset) {
       case (df, (model, index)) =>
-        val rawPredictionCol = model.getRawPredictionCol
         val predictionCol = model.getPredictionCol
         // TODO: Add probability col if exists
-        val columns = origCols ++ List(col(predictionCol), col(rawPredictionCol), col(accColName))
+        val columns = origCols ++ List(col(predictionCol), col(accColName))
 
         // add temporary column to store intermediate scores and update
         val tmpColName = "mbc$tmp" + UUID.randomUUID().toString
-        val updateUDF = udf { (predictions: Map[Int, Double], prediction: Vector) =>
+        val updateUDF = udf { (predictions: Map[Int, Double], prediction: Double) =>
           // Selecting only prediction for positive class
-          predictions + ((index, prediction(1)))
+          predictions + ((index, prediction))
         }
         model.setFeaturesCol($(featuresCol))
         val transformedDataset = model.transform(df).select(columns: _*)
         val updatedDataset = transformedDataset
-          .withColumn(tmpColName, updateUDF(col(accColName), col(rawPredictionCol)))
-        val newColumns = origCols ++ List(col(tmpColName), col(predictionCol))
+          .withColumn(tmpColName, updateUDF(col(accColName), col(predictionCol)))
+        val newColumns = origCols ++ List(col(tmpColName))
 
         // switch out the intermediate column with the accumulator column
-        updatedDataset.select(newColumns: _*)
-          .withColumnRenamed(tmpColName, accColName)
-          .withColumnRenamed(predictionCol, predictionCol + UUID.randomUUID().toString)
-
+        updatedDataset.select(newColumns: _*).withColumnRenamed(tmpColName, accColName)
     }
 
     if (handlePersistence) {
@@ -243,8 +239,7 @@ final class OneVsRestMultiModel(
     val labelUDF = udf { (predictions: Map[Int, Double]) =>
       // TODO: Indices to labels
 //      predictions.maxBy(_._2)._1.toDouble
-//      predictions.filter(_._2 >= 0.5)
-      predictions
+      predictions.collect { case pred if pred._2 == 1 => pred._1.toDouble }.toSeq
     }
 
     // output label and label metadata as prediction
@@ -310,7 +305,7 @@ final class OneVsRestMultiModel(
 /**
   * Reduction of Multiclass Classification to Binary Classification.
   * Performs reduction using one against all strategy.
-  * For a multiclass classification with k classes, train k models (one per class).
+  * For a multiclass stackoverflow.classification with k classes, train k models (one per class).
   * Each example is scored against all k models and the model with highest score
   * is picked to label the example.
   */

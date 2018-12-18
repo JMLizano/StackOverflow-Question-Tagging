@@ -1,9 +1,13 @@
 # Scala
 *.class
-*.log
 target
-.ensime_cache
 project
+
+# Editor
+.ensime_cache
+
+# files
+*.log
 
 # IntelliJ project files
 .idea
