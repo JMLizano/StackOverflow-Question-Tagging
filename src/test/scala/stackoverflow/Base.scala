@@ -1,7 +1,9 @@
 package stackoverflow
 
+import java.nio.file.Paths
+
 import org.scalatest._
-import org.apache.spark.sql.{SparkSession, SQLImplicits, SQLContext}
+import org.apache.spark.sql.{SQLContext, SQLImplicits, SparkSession}
 
 
 class Base extends FunSuite with BeforeAndAfterAll { self =>
@@ -23,6 +25,8 @@ class Base extends FunSuite with BeforeAndAfterAll { self =>
      .appName("stackOverflowTesting")
      .master("local")
      .getOrCreate()
+
+   spark.sparkContext.setLogLevel("ERROR")
   }
 
   /**
@@ -38,5 +42,8 @@ class Base extends FunSuite with BeforeAndAfterAll { self =>
       super.afterAll()
     }
   }
+
+  /** @return The filesystem path of the given resource */
+  def fsPath(resource: String): String = Paths.get(getClass.getResource(resource).toURI).toString
 
 }

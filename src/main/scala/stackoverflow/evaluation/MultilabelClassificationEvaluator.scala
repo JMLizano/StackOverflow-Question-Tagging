@@ -7,8 +7,8 @@ import org.apache.spark.mllib.evaluation.MultilabelMetrics
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{ArrayType, DoubleType}
-import stackoverflow.classification.{HasLabelCol, HasPredictionCol}
 
+import org.apache.spark.ml.Hacks._
 
 /**
   * Totally copy pasta from org.spark.ml.evaluation.MulticlassClassificationEvaluator
@@ -16,7 +16,7 @@ import stackoverflow.classification.{HasLabelCol, HasPredictionCol}
   * Evaluator for multilabel classification, which expects two input columns: prediction and label.
   */
 class MultilabelClassificationEvaluator(override val uid: String)
-  extends Evaluator with HasPredictionCol with HasLabelCol with DefaultParamsWritable {
+  extends Evaluator with _HasPredictionCol with _HasLabelCol with DefaultParamsWritable {
 
   def this() = this(Identifiable.randomUID("mlEval"))
 
@@ -49,9 +49,8 @@ class MultilabelClassificationEvaluator(override val uid: String)
 
   def getMetrics(dataset: Dataset[_]): MultilabelMetrics = {
     val schema = dataset.schema
-    // TODO: Fix the type checking (SchemaUtils is private)
-    //    SchemaUtils.checkColumnType(schema, $(predictionCol), DoubleType)
-    //    SchemaUtils.checkNumericType(schema, $(labelCol))
+    _SchemaUtils.checkColumnType(schema, $(predictionCol), DoubleType)
+    _SchemaUtils.checkNumericType(schema, $(labelCol))
 
     val predictionAndLabels =
       dataset.select(col($(predictionCol)), col($(labelCol)).cast(ArrayType(DoubleType))).rdd.map {

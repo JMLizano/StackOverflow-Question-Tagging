@@ -1,7 +1,7 @@
 package stackoverflow
 
 import org.apache.spark.ml.{Pipeline, PipelineStage}
-import org.apache.spark.ml.classification.LogisticRegression
+import org.apache.spark.ml.classification.{LogisticRegression, LogisticRegressionModel}
 import org.apache.spark.ml.feature.SQLTransformer
 import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.tuning.{ParamGridBuilder, TrainValidationSplit}
@@ -13,11 +13,16 @@ import stackoverflow.classification.OneVsRestMulti
 object onlyPythonAndJsExperiment extends MLJob {
 
   val binaryModel: LogisticRegression = new LogisticRegression()
-  val multiLabelModel: OneVsRestMulti = new OneVsRestMulti("OnevsRestLogistic").setClassifier(binaryModel)
+                                          .setRawPredictionCol("rawPrediction")
+                                          .setThreshold(0.8)
+  val multiLabelModel: OneVsRestMulti = new OneVsRestMulti("OnevsRestLogistic")
+                                          .setClassifier(binaryModel)
+                                          .setPredictionCol("prediction")
 
   override val hyperparameters: Array[ParamMap] = new ParamGridBuilder()
     .addGrid(binaryModel.maxIter, Array(100))
     .addGrid(binaryModel.tol, Array(0.01, 0.1))
+    .addGrid(binaryModel.threshold, Array(0.5, 0.65, 0.8))
     .build()
 
   override val pipeline: Pipeline = new Pipeline().setStages(Array(
@@ -40,13 +45,5 @@ object onlyPythonAndJsExperiment extends MLJob {
       .withColumn("label", selectedTagsUdf(col("label")))
       .where("size(label) > 0")
   }
-
-  def filter(dataset: Dataset[_], spark: SparkSession): Dataset[_] = {
-    val selectedTags = Array("python", "javascript")
-    spark.udf.register("filterTags", (tags: Seq[String]) => tags.filter(selectedTags.contains(_)))
-    val trans = new SQLTransformer().setStatement("Select *, filterTags(label) as label from __THIS__")
-    trans.transform(dataset)
-  }
-
 
 }

@@ -7,7 +7,6 @@ trait SparkSessionWrapper {
 
   lazy val spark = SparkSession.builder
     .appName("StackoverflowQuestions")
-    .enableHiveSupport()
     .getOrCreate()
 
 }

@@ -6,7 +6,6 @@ import org.apache.spark.ml.tuning.{TrainValidationSplit, TrainValidationSplitMod
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.sql._
 import stackoverflow.evaluation.MultilabelClassificationEvaluator
-import stackoverflow.classification.OneVsRestMultiLabel
 
 // Abstraction to train a ML model
 trait MLJob extends SparkSessionWrapper {
@@ -18,8 +17,8 @@ trait MLJob extends SparkSessionWrapper {
   def getData(spark: SparkSession, path: String): Dataset[_]
 
   /**
-    * Randomly splits this Dataset into train and test, with the provided train ratio. The test
-    * ratio is computed as 1 - train ratio
+    * Randomly splits this Dataset into train and test, with the provided train
+    * ratio. The test ratio is computed as 1 - train ratio
     *
     * @param df dataset to split
     * @param trainRatio ratio to use for train split
@@ -49,7 +48,7 @@ trait MLJob extends SparkSessionWrapper {
     val model = trainWithValidation(train, hyperparameters)
 
     // Output model params
-    model
+    model.explainParams()
     // Score the model against test data
     val predictions = model.transform(test)
     val metrics = evaluator.getMetrics(predictions)
