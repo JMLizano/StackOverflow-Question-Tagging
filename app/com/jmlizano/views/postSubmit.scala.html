@@ -1,0 +1,27 @@
+@import helper._
+@import com.jmlizano.controllers.PostFormInput
+@import com.jmlizano.serving.TagsModel
+
+@(postForm: Form[PostFormInput], prediction: TagsModel.tagsResult)(implicit request: MessagesRequestHeader)
+
+@main("Stackoverflow post tags prediction") {
+    <h1>Stackoverflow post tags prediction</h1>
+
+    @helper.form(action = com.jmlizano.controllers.routes.TagsController.tags(false)) {
+
+        @inputText(postForm("Title"))
+        @inputText(postForm("Body"))
+        <input type="submit" value="Submit">
+    }
+
+    @if(!prediction.tags.isEmpty) {
+        <h1>Predicted tags for this post:</h1>
+        <ul>
+            @for(t <- prediction.tags) {
+                <li>@t</li>
+            }
+        </ul>
+    }
+}
+
+

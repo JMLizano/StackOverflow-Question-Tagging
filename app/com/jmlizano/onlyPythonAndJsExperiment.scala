@@ -5,9 +5,9 @@ import org.apache.spark.ml.classification.LogisticRegression
 import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.tuning.ParamGridBuilder
 import org.apache.spark.sql.{Dataset, SparkSession}
-import org.apache.spark.sql.functions.{udf,col}
-
+import org.apache.spark.sql.functions.{col, udf}
 import com.jmlizano.classification.OneVsRestMulti
+import org.apache.spark.sql.types.BooleanType
 
 // TODO: This can be generalized to a class that accept the labels to use as a constructor parameter
 object onlyPythonAndJsExperiment extends MLJob {
@@ -40,7 +40,9 @@ object onlyPythonAndJsExperiment extends MLJob {
 
   def filterTags(dataset: Dataset[_]): Dataset[_] = {
     val selectedTags = Array("python", "javascript")
-    val selectedTagsUdf = udf { (tags: Seq[String]) => tags.filter(selectedTags.contains(_)) }
+    val selectedTagsUdf = udf[Seq[String], Seq[String]] {
+      (tags: Seq[String]) => tags.filter(selectedTags.contains(_))
+    }
     dataset
       .withColumn("label", selectedTagsUdf(col("label")))
       .where("size(label) > 0")

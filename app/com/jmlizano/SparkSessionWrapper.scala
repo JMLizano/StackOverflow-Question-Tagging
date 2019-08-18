@@ -4,8 +4,8 @@ import org.apache.spark.sql.SparkSession
 
 trait SparkSessionWrapper {
 
-  lazy val spark = SparkSession.builder
+  val spark = SparkSession.builder
     .appName("StackoverflowQuestions")
+    .master("local[1]")
     .getOrCreate()
-
 }
