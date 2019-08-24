@@ -7,7 +7,6 @@ import org.apache.spark.ml.tuning.ParamGridBuilder
 import org.apache.spark.sql.{Dataset, SparkSession}
 import org.apache.spark.sql.functions.{col, udf}
 import com.jmlizano.classification.OneVsRestMulti
-import org.apache.spark.sql.types.BooleanType
 
 // TODO: This can be generalized to a class that accept the labels to use as a constructor parameter
 object onlyPythonAndJsExperiment extends MLJob {
@@ -18,6 +17,7 @@ object onlyPythonAndJsExperiment extends MLJob {
   val multiLabelModel: OneVsRestMulti = new OneVsRestMulti("OnevsRestLogistic")
                                           .setClassifier(binaryModel)
                                           .setPredictionCol("prediction")
+                                          .setStringPredictionCol("predictionLabel")
 
   override val hyperparameters: Array[ParamMap] = new ParamGridBuilder()
     .addGrid(binaryModel.maxIter, Array(100))
