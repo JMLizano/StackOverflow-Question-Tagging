@@ -6,7 +6,7 @@ https://www.youtube.com/watch?v=n8lIqL8w1fg
 There are not a lot of options out there: https://github.com/combust/mleap
 
 MLEAP seems the most intestering one, but you are forced to rewrite the transform() method from the model in plain
-Scala. I will go with my own serialization format, and serving using some standar web server
+Scala. I will go with my own serialization format, and serving using some standard web server
 
 OneVsRest Model
 

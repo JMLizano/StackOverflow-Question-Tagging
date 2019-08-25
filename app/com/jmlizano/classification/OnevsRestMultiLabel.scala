@@ -24,9 +24,7 @@ import org.apache.hadoop.fs.Path
 import org.apache.spark.SparkContext
 import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.ml._
-import org.apache.spark.ml.attribute._
-import org.apache.spark.ml.classification.{ClassificationModel, Classifier, ClassifierParams, LogisticRegressionModel}
-import org.apache.spark.ml.linalg.{Vector, Vectors}
+import org.apache.spark.ml.classification.{ClassificationModel, Classifier}
 import org.apache.spark.ml.param.{Param, ParamMap, ParamPair, Params}
 import org.apache.spark.ml.util._
 import org.apache.spark.sql.functions._
@@ -34,7 +32,7 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Dataset}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.ml.Hacks._
-import org.apache.spark.ml.param.shared.{HasThreshold, HasWeightCol}
+import org.apache.spark.ml.param.shared.HasWeightCol
 import org.json4s.jackson.JsonMethods._
 import org.json4s.{DefaultFormats, JObject, _}
 import org.json4s.JsonDSL._
@@ -175,7 +173,7 @@ final class OneVsRestMultiModel(
 
 
     override def transformSchema(schema: StructType): StructType = {
-    //    validateAndTransformSchema(schema, fitting = false, getClassifier.featuresDataType)
+//        validateAndTransformSchema(schema, fitting = false, getClassifier.featuresDataType)
       schema.add(StructField($(predictionCol), DoubleType, false))
     }
 
@@ -227,7 +225,7 @@ final class OneVsRestMultiModel(
       }
 
 
-      // output the index of the classifier with positive prediction
+      // output the index of all classifiers with positive prediction
       val labelUDF = udf { (predictions: Map[Int, Double]) =>
         predictions.collect { case pred if pred._2 == 1 => pred._1.toDouble }.toSeq
       }

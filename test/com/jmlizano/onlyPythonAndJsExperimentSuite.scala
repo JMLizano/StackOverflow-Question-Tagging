@@ -32,7 +32,7 @@ class onlyPythonAndJsExperimentSuite extends Base {
   }
 
   test("get data") {
-    val data = onlyPythonAndJsExperiment.getData(spark, "/Users/chemalizano/Work/stackoverflowQuestions/src/test/resources/questions")
+    val data = onlyPythonAndJsExperiment.getData(spark, fsPath("/questions"))
     val labels = data.select($"label").distinct().as[Seq[String]].collect().toSet.flatten
     assert(labels == Set("python", "javascript"))
   }
@@ -56,8 +56,6 @@ class onlyPythonAndJsExperimentSuite extends Base {
     assert(predictions.select("prediction").collect() sameElements predictions_from_disk.select("prediction").collect() )
     predictions.show()
     predictions.select("label", "labelNumeric", "prediction", "predictionLabel").show()
-
-    println(model.bestModel.explainParams())
 
     println(s"Hamming Loss = ${metrics.hammingLoss}")
     println(s"f1 score     = ${metrics.f1Measure}")
